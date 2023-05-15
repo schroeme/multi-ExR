@@ -1,4 +1,4 @@
-minfunction [SNR_overall,SNR_synapses,nsynapses] = analyze_mExR_validation_strip(fov,params)
+function [SNR_overall,SNR_synapses,nsynapses] = analyze_mExR_validation_strip(fov,params)
 % Analyzes validation data, with same proteins stained in consecutive rounds
 % Outputs 
 % SNR: the overall image SNR in each round for each channel
@@ -29,10 +29,10 @@ if strcmp(params.filt,'med')
     morphbin_filt = medfilt3(morph_bin,params.medfilt);
 end
 
-closingrad = params.closingrad*(1/xystep); %radius for morphological closing, in nm
+morph_closingrad = params.morph_closingrad*(1/xystep); %radius for morphological closing, in nm
 if morphclose
         %I_c=imclose(I_f0,strel('sphere',closingrad)); 
-    morphclosed=imclose(morphbin_filt,strel('disk',floor(closingrad))); %morphological closing
+    morphclosed=imclose(morphbin_filt,strel('disk',floor(morph_closingrad))); %morphological closing
 else
     morphclosed=morphbin_filt; %no morphological closing
 end
@@ -66,10 +66,10 @@ for rridx = 1:nrounds
                 imbin_filt(imbin_filt<0) = 0;
             end
 
-            closingrad = params.closingrad*(1/xystep); %radius for morphological closing, in nm
+            syn_closingrad = params.syn_closingrad*(1/xystep); %radius for morphological closing, in nm
             if morphclose
                     %I_c=imclose(I_f0,strel('sphere',closingrad)); 
-                imclosed=imclose(imbin_filt,strel('disk',floor(closingrad))); %morphological closing
+                imclosed=imclose(imbin_filt,strel('disk',floor(syn_closingrad))); %morphological closing
             else
                 imclosed=imbin_filt; %no morphological closing
             end
@@ -83,7 +83,7 @@ for rridx = 1:nrounds
             nobjects = CC_signal.NumObjects;
             
             %dilate the image and create a "noise" mask
-            se = strel('disk',10);
+            se = strel('disk',params.dilationrad);
             dilated = imdilate(mask,se);
             %noise_mask = double(dilated) - double(mask);
             CC_dilated = bwconncomp(dilated,26);
@@ -117,6 +117,18 @@ for rridx = 1:nrounds
 
             SNR = mean(masked_image(masked_image>0))/mean(bg_image(bg_image>0));
 
+            if params.doplot
+                figure();
+                subplot(1,3,1)
+                imagesc(max(img,[],3))
+                subplot(1,3,2)
+                imagesc(max(mask,[],3))
+                subplot(1,3,3)
+                imagesc(max(masked_image,[],3))
+                name=fnames(1).name(1:end-4);
+                suptitle(name)
+            end
+
             %save down the segmentation as tiff stack in same folder
             imtosave1 = uint8(mask);
             name=fnames(1).name(1:end-4);
@@ -134,6 +146,5 @@ for rridx = 1:nrounds
     end
 end
 
-end
 
 
