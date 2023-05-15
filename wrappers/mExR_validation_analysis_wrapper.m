@@ -17,20 +17,20 @@
 clear all
 
 %folder containing registered image volumes
-parentfolder = 'E:/Margaret/mExR/2022.05_validation/cropped_ROIs/';
+parentfolder = 'E:/Margaret/mExR/2022.05_validation/zcropped/';
 
 %fields of view within this folder to analyze. I have commented out some
 %fields of view here because stripping data was not obtained for all ROIs,
 %and in this instance I wanted to analyze the stripping rounds, as
 %specified in params.rounds
 fovs = {
-%     'ROI1';
-%     'ROI2';
-    'ROI3';
-    'ROI4';
-%     'ROI5';
-    'ROI6';
-    'ROI8'
+    'ROI1';
+    'ROI2';
+%     'ROI3';
+%     'ROI4';
+    'ROI5';
+%     'ROI6';
+%     'ROI8'
     };
 
 params.xystep = 0.1625/18; %physical pixel size divided by expansoin factor, um/voxel in x and y
@@ -41,30 +41,47 @@ params.normalization = 'minmax'; %method for normalizing images
 params.subtract_morph = 1; %subtract the morphology channel? no, because we are using it for reg quality analysis
 params.morph_channel = '4'; %morphology channel used for registration, for subtracting out
 params.nrounds = 7; %number of rounds for each field of view
-params.rounds = {'1';'1-strip'; '2';'2-strip';'3';'3-strip';'4';'5';'6';'7'};%if analyzing strip rounds, specify here
+params.rounds = {'1';
+%     '1-strip';
+    '2';
+%     '2-strip';
+    '3';
+%     '3-strip';
+    '4';'5';'6';'7'};%if analyzing strip rounds, specify here
 params.thresh_method = 'pct'; %method for intensity thresholding; either percentile, z-score based, or absolute
+params.doplot=1;
 params.thresh_pctl = 99.5; %percentile at which to set intensity threshold
 params.filt = 'med'; %method for filtering image. if 'med', is 3D median filter
 params.medfilt = [9 9 3]; %size of 3D median filter in [x y z]
 params.morph_close = 1; %whether or not to perform morphological closing on objects
-params.closingrad = 0.5; %radius for morphological closing disk, in microns
+params.morph_closingrad = 2; %radius for morphological closing disk for morphology channel, in microns
+params.syn_closingrad = 0.25; %radius for morphological closing disk for synapse channel in microns
 params.lowerlim = 0.05; %lower limit of size filter for object detction, in microns
 params.vol_converter = ((2/3)*params.xystep + (1/3)*params.zstep)^3; %weighted average to convert voxels to um^3
+params.dilationrad = 20; %radius (in pixels) for mask dilation
 
 %% Running section for whole field of view analysis
 % Will return overall SNR, SNR within/around detected objects, and number
 % of objects detected
 
-parfor fovidx = 1:length(fovs)
+for fovidx = 1:length(fovs)
     fov = fovs{fovidx};
     disp(fov);
     [data(fovidx).SNR_overall,data(fovidx).SNR_synapses,data(fovidx).nsynapses] = analyze_mExR_validation_strip(fov,params);
 end
 
+%% Reformat data for convenient copy-paste into Prism
+protein =3;
+topaste = [];
+for fovidx = 1:length(fovs)
+    datacol = data(fovidx).nsynapses(:,protein);
+    topaste = [topaste datacol];
+end
+
 %% Save down the data
 
 %adjust the filename as needed
-save([parentfolder 'validation_SNR_data_20220701.mat'],'data')
+save([parentfolder 'validation_SNR_data_20230419.mat'],'data')
 
 %% Running section for manually-cropped synaptic ROIs analysis
 
@@ -134,6 +151,7 @@ save([parentfolder 'validation_cropped-synapses_data_20220814.mat'],'datasyn')
 
 % directory of preprocessed images (unregistered), with channels split
 params.parentfolder = 'E:/Margaret/mExR/2022.05_validation/preprocessed_split/';
+params.savefolder = 'E:/Margaret/mExR/2022.05_validation/preprocessed_split/summedMasks/';
 
 % fields of view within this folder to analyze (per the naming convention,
 % this should be the first string before the underscore)
@@ -147,10 +165,20 @@ fovs = {
     'ROI8'
     };
 
+params.morph_close=0;
+params.regsummed = 1; %1 if the registration channel was created by summing all channels
 params.closingrad = 0.1; %radius for morphological closing disk, in microns
+params.writemask = 1;
 
 for fovidx = 1:length(fovs)
     fov = fovs{fovidx};
     disp(fov);
     [data(fovidx).volume,data(fovidx).volume_frac,data(fovidx).min_vol,data(fovidx).max_vol] = analyze_mExR_validation_feature_density(fov,params);
+end
+
+%% Reformat feature density measurements to convenient copy/past form
+
+topaste = [];
+for fovidx = 1:length(fovs)
+    topaste = [topaste;data(fovidx).max_vol];
 end
