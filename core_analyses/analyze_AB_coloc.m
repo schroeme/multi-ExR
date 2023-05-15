@@ -48,6 +48,9 @@ for im1 = 1:nchannels %nested loops because we are looking at colocalization
             
             img1_bin = imbinarize(img1,thresh1);
             img2_bin = imbinarize(img2,thresh2);
+        elseif strcmp(params.thresh_method,'absolute')
+            img1_bin = imbinarize(img1,params.thresholds(im1));
+            img2_bin = imbinarize(img2,params.thresholds(im2));
         end
         
         %filter the images
@@ -79,6 +82,10 @@ for im1 = 1:nchannels %nested loops because we are looking at colocalization
             img1_bin = img1_bin;
             img2_bin = img2_bin;
         end
+
+        %apply a size filter to get rid of bright, high-frequency noise
+        img1_bin = bwareaopen(img1_bin,params.lowerlim);
+        img2_bin = bwareaopen(img2_bin,params.lowerlim);
         
         vol(im1,1) = nnz(img1_bin(:)) * params.vol_converter;
 
@@ -96,23 +103,23 @@ for im1 = 1:nchannels %nested loops because we are looking at colocalization
             title([roi '- Fraction mutually overlapping = ' num2str(overlap_pct)]);
         end
 
-        cc1 = bwconncomp(img1_bin);
-        cc2 = bwconncomp(img2_bin);
+%         cc1 = bwconncomp(img1_bin);
+%         cc2 = bwconncomp(img2_bin);
 
-        if params.doplot
-            L1 = labelmatrix(cc1);
-            L2 = labelmatrix(cc2);
-            mip1 = max(L1,[],3);
-            mip2 = max(L2,[],3);
-
-            RGB_label1 = label2rgb(mip1,@turbo,"c","shuffle");
-            figure;
-            imshow(RGB_label1)
-
-            RGB_label2 = label2rgb(mip2,@turbo,"c","shuffle");
-            figure;
-            imshow(RGB_label2)
-        end
+%         if params.doplot
+%             L1 = labelmatrix(cc1);
+%             L2 = labelmatrix(cc2);
+%             mip1 = max(L1,[],3);
+%             mip2 = max(L2,[],3);
+% 
+%             RGB_label1 = label2rgb(mip1,@turbo,"c","shuffle");
+%             figure;
+%             imshow(RGB_label1)
+% 
+%             RGB_label2 = label2rgb(mip2,@turbo,"c","shuffle");
+%             figure;
+%             imshow(RGB_label2)
+%         end
         
         frac_overlap(im1,im2) = overlap_pct;
         
