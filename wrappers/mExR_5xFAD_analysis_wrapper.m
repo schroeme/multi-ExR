@@ -68,13 +68,27 @@ params.syn_channels = {
 %define amyloid-beta channels using 'round-channel'
 params.AB_chs = {'1-2';'2-3';'3-3'};
 
-%% Analyze overlap/correlation between different AB stains 
+%% Determine absolute thresholds for abeta channels based on Abeta signal
 
+%change the parameters for this analysis
 params.thresh_method = 'zscore';
 params.thresh_multiplier = 5;
-params.doplot=0;
 
-for fidx = 6:length(ROIs)
+%run this to determine the absolute threshold
+for fidx = 1:length(ROIs)
+    thresh(fidx).roiname = ROIs{fidx};
+    thresh(fidx).thresh = determine_intensity_threshold_5xFAD(params,ROIs{fidx},params.AB_chs);
+end
+%% Analyze overlap/correlation between different AB stains 
+
+params.thresh_method = 'absolute';
+params.thresholds = [680 %~rounded averages as determined above
+85
+64];
+params.doplot=1;
+params.lowerlim = 150; %minimum object size, in voxels
+
+for fidx = 1:length(ROIs)
     data(fidx).roiname = ROIs{fidx};
     [data(fidx).data] = analyze_AB_coloc(params,ROIs{fidx},params.AB_chs);
 end
