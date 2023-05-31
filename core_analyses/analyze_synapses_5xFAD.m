@@ -108,6 +108,7 @@ for im1 = 1:nchannels %nested loops because we are looking at colocalization
         if params.doplot
             figure;
             imagesc(max(img1_bin,[],3));
+            title(im1_files(1).name)
         end
 
         %mask the images to get rid of background noise. we don't want to
