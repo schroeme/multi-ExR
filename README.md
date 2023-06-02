@@ -39,5 +39,9 @@ Code base accompanying Kang*, Schroeder* et al., 2023 (preprint here: []).
 ## File naming convention
 Prior to pre-processing, if you wish to use our pre-processing scripts, z-stacks should be contained in a directory with the following organization: [round]/[condition]/ and named "ROI[N] [magnification].tif". Alternatively, you can name the files and organize your folders however you want, and modify the pre-processing .ijm scripts accordingly. After pre-processing (before registration), individual channel z-stacks should be named according to the following convention: [FIELD-OF-VIEW]_round[NNN]_ch[NN].tif. For example, 'WT-Ctx-ROI1_round001_ch01.tif'. After registration, the analysis scripts assume a similar naming convention, though the appendix "_warped.tif" or "_affine.tif" may be added, depending on which registration pipeline you use.
 
+## Notes on the scripts in the folders
+
+Note that not all scripts provided here were used for analysis provided in the manuscript. Please check the wrappers to see which scripts were actually called.
+
 ## Example dataset and tutorial
 [Coming soon].
