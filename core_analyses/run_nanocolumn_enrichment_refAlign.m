@@ -9,6 +9,7 @@ rmax = params.rmax;
 prepost=params.prepost; %assign pre or post-synaptic identity to channel. 0 = pre, 1 = post
 pixel_size=params.pixel_size;
 step = params.step;
+channels_rounds = params.channels_rounds;
 
 res = [];       %array to keep the results
 ch01_syn_files = dir([parentdir fov '*round001*ch01*.tif']);
@@ -21,13 +22,22 @@ for sss = 1:nsynapses %loop through all synapses
     
     for ii = 1:nChannels%loop through all channels
         for jj = 1:nChannels%do this in a pairwise manner
-            file1 = fullfile(syn_files(ii).name);
-            splits1 = split(file1,'_');
-            round1 = splits1{2};
+            
+            ch1str=channels_rounds{ii};
+            ch1splits = split(ch1str,'-');
+            ch1roundstr = ['0' ch1splits{1}];
+            ch1str = ch1splits{2};
+           
+            ch1files = dir([parentdir fov '*round*' ch1roundstr '_ch0' ch1str '*.tif']);
+            file1 = fullfile(ch1files(sss).name);
 
-            file2 = fullfile(syn_files(jj).name);
-            splits2 = split(file2,'_');
-            round2 = splits2{2};
+            ch2str=channels_rounds{jj};
+            ch2splits = split(ch2str,'-');
+            ch2roundstr = ['0' ch2splits{1}];
+            ch2str = ch2splits{2};
+           
+            ch2files = dir([parentdir fov '*round*' ch2roundstr '_ch0' ch2str '*.tif']);
+            file2 = fullfile(ch2files(sss).name);
 
             test1 = loadtiff([parentdir file1]);
             test1 = double(test1);
@@ -42,38 +52,16 @@ for sss = 1:nsynapses %loop through all synapses
             im2 = expand(test2,[2,2,3]); 
             pixel = pixel_size/exp_factor; %Pixel size defined here, in nm
 
-            if (strcmp(round1,round2)) && (prepost(ii) == prepost(jj)) %if we're in the same round, and same pre-post identity, no xyz shift
+            if (strcmp(ch1roundstr,ch2roundstr)) && (prepost(ii) == prepost(jj)) %if we're in the same round, and same pre-post identity, no xyz shift
                 xyzshift = [0,0,0];
-            elseif (strcmp(round1,round2)) && (prepost(ii) ~= prepost(jj)) %if we're in the same round, and diff pre-post identity, yes xyshift
-                xyzshift = [];
-            elseif (strcmp(round1,round2)==0) && (prepost(ii) == prepost(jj)) %if we're in different rounds, and same pre/post identity, shift only to reflect reg error
-%                 ref1files = dir([parentdir fov '*' round1 '*ch04*' syn_name_splits{5} '_' syn_name_splits{6}]);
-%                 ref1file = ref1files(1).name;
-%                 ref2files = dir([parentdir fov '*' round2 '*ch04*' syn_name_splits{5} '_' syn_name_splits{6}]);
-%                 ref2file = ref2files(1).name;
-% 
-%                 ref1 = loadtiff([parentdir ref1file]);
-%                 ref1 = double(ref1);
-%                 ref2 = loadtiff([parentdir ref2file]);
-%                 ref2 = double(ref2);
-%                 im1 = expand(test1,[2,2,3]); %2,2,3 are divisors that give equal pixel values for x,y,z
-%                 im2 = expand(test2,[2,2,3]); 
-%                 pixel = pixel_size/exp_factor; %Pixel size defined here, in nm
-%                 
-%                 xyzshift = [];
-%                 distance = [10,800]; %minimum and maximum shift radius, based on registration error
-%                 flag = 0;
-%                 xyzshift = calculate_xyzshift(ref1, ref2, pixel, rmax, xyzshift, distance,flag);
-                xyzshift = [];
-            elseif  (strcmp(round1,round2)==0) && (prepost(ii) ~= prepost(jj)) %allow any xyzshift
-                %later we can figure out if a double-shift is needed
+            else 
                 xyzshift = [];
             end
         
             %Shift clusters to be compared so that they are overlapped. If clusters
             %are expected to be colocalized and occupy the same space (and thus require
             %no shift), set xyzshift = [0,0,0]
-            distance = [10,800]; %Min and max distance allowed for xyz shift, in nm
+            distance = params.distance;
             flag = 0;
             
             [Raa,Rab,Rba,Rbb] = get_enrichment_3dMatrix_final(im1, im2, pixel, rmax, xyzshift, distance, step, flag);

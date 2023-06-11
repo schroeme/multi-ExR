@@ -1,5 +1,5 @@
 // ************* FIJI SCRIPT FOR AUTOMATICALLY CROPPING MANUALLY-IDENTIFIED ROIS ************* \\
-// Last modified by MES on 12/15/22
+// Last modified by MES on 6/11/23
 // Please read through this script and take note of anything marged "CHANGE HERE". Change accordingly
 // Lots of this script is hard-coded and will need to be modified based on your file saving/naming conventions
 // Some familiarity with Fiji / ijm is best
@@ -18,7 +18,7 @@ ROIs = newArray( //fields of view to process
 	"5xFAD-ctx-ROI5"	
 				);
 				
-nslices_range = 20; //number of z-slices in each direction from ROI midpoint to crop. total z-stack length for each ROI will be double this
+zwidth = 18; //number of z-slices in each direction from ROI midpoint to crop. total z-stack length for each ROI will be double this
 
 // NO NEED TO MODIFY THE BELOW
 image_folder = parent;
@@ -43,8 +43,8 @@ for  (i=0; i<ROIs.length; i++){
 			    for (n=0; n<roiManager("count"); ++n) {
 			    	roiManager("Select", n);
 			    	zidx = getSliceNumber();
-			    	zrange1 = zidx-nslices_range;
-			    	zrange2 = zidx+nslices_range;
+			    	zrange1 = zidx+1-nslices_range;//add one slice; empirically my tendency is to ID the midpoint a bit early
+			    	zrange2 = zidx+1+nslices_range;
 
 			    	if (zrange1<1){
 			    		zrange1=1;

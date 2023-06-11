@@ -1,7 +1,7 @@
 %% Wrapper for multi-ExR nanocolumn analysis %%
 
 % Accompanies the manuscript by Kang*, Schroeder* et al., 2023
-% Last modified by Margaret Schroeder on 12/14/2022
+% Last modified by Margaret Schroeder on 6/6/2023
 % Adapted from a script originally written by Tyler Tarr (Sarkar, Kang,
 % Wassie et al. Nat Biomedical Engineering 2022)
 
@@ -22,32 +22,27 @@
 %% Part 1: Initialize and set parameters
 clear all
 params.exp_factor = 18;   %expansion factor, adjust as needed
-params.parentdir = 'E:/Margaret/mExR/2022.08_synapses/synapses_cropped_nanocolumn/'; %path to cropped ROIs for this analysis
+params.parentdir = 'E:/Margaret/mExR/2022.08_synapses/synapses_cropped_nanocolumn_v3/'; %path to cropped ROIs for this analysis
 params.targetdir = params.parentdir;
-params.channels_rounds = { %channels and rounds to analyze in round-channel string format
-    '1-1';'1-2';'1-3';'1-4';
-    '2-1';'2-2';'2-3';'2-4';
-    '3-1';'3-2';'3-3';'3-4';
-    '4-2';'4-3';'4-4';
-    '5-2';'5-3';'5-4';
-    '6-2';'6-3';'6-4';
-    '7-3';'7-3';'7-4';
-    '8-2';'8-3';'8-4';
-    '9-2';'9-3';'9-4';
-    '10-2';'10-3';'10-4';
-    '11-2';'11-3';'11-4'
-    };
-params.prepost = [0 1 1 0 ... %pre/post identity of the synaptic protein. this is important for the xyzshift logic
-    1 1 1 0 ...
-    0 1 0 0 ...
-    1 1 0 ...
-    0 0 0 ...
-    1 1 0 ...
-    0 1 0 ...
-    1 1 0 ...
-    0 1 0 ...
-    0 1 0 ...
-    1 1 0
+params.channels_rounds = {
+    '1-1';'1-2';'1-3';
+    '2-1';'2-2';'2-3';
+    '3-1';'3-2';'3-3';
+    '4-2';'4-3';
+    '5-2';'5-3';
+    '7-2';
+    '8-2';'8-3';
+    '11-3'
+    }; %FOR BATCH 1
+params.prepost = [
+    0 1 1 ... %pre/post identity of the synaptic protein. this is important for the xyzshift logic
+    1 1 1 ... %2
+    0 1 0 ... %3
+    1 1 ... %4
+    0 0 ... %5
+    0 ... %7
+    1 1 ... %8
+    1 %11
 ]; %0 for pre and 1 for post
 params.nChannels=length(params.channels_rounds); %number of channels
 params.rmax = 20;      %Maximum shift distance, in pixels (defined below)
@@ -56,25 +51,13 @@ fov_names = {'ROI1';
     'ROI2';
     'ROI3';
     'ROI4';
-    'ROI5'};
+    'ROI5'
+    };
 params.pixel_size=82; %in nm, divide the physical pixel size of the camera chip by 2 and the z-step size by 3
 %.1625/2, .250/3 in nm (not exact)
 
-%% Part 2: Read in the saved tiffs and do the cross correlation (not done for manuscript)
-% 
-% for fidx = 1:length(fov_names)
-%     cc_struct(fidx).res_crosscorr = run_nanocolumn_crosscor_refAlign(params,fov_names{fidx});
-% end
-% %Column 1: ROI number
-% %Column 2: Synapse number for that ROI
-% %Column 3: channel 1
-% %Column 4: channel 2
-% %Columns 5-7: xyz shift
-% %Column 8: Average intensity of channel 1
-% %Column 9: Average intensity of channel 2
-% %Column 10-end: Cross-correlation results
 
-%% Part 3: Read in the saved tiffs and do the autocorrelation
+%% Part 1: Read in the saved tiffs and do the autocorrelation
 % expand the matrix to make voxel cubic
 %Autocorrelation is calculated just as the cross-correlation except there
 %is no xyzshift
@@ -90,7 +73,7 @@ end
 %Column 8: Average intensity of channel 1
 %Column 9: Average intensity of channel 2
 %Column 10-end: Auto-correlation results
-%% Part 4- Read in the saved tiffs and do protein enrichment analysis
+%% Part 2 - Read in the saved tiffs and do protein enrichment analysis
 
 params.rmax=180; %Max distance over which to run the analysis, in nm
 params.step=5; %Step size distance for the analysis, in nm. Ideally, this should be in
@@ -98,10 +81,12 @@ params.step=5; %Step size distance for the analysis, in nm. Ideally, this should
             %if the pixel size below is 5 nm, then the step could be set to
             %5, 10, 15, etc. 
 params.flag=0;
+params.distance = [20,200]; %Min and max distance allowed for xyz shift, in nm
 
 params.override_shift = 1;
-for fidx = 1:length(fov_names)
-    enrich_struct(fidx).res_enrich = run_nanocolumn_enrichment_refAlign(params,fov_names{fidx});
+parfor fidx = 1:length(fov_names)
+    %enrich_struct(fidx).res_enrich = run_nanocolumn_enrichment_refAlign(params,fov_names{fidx});
+    run_nanocolumn_enrichment_refAlign(params,fov_names{fidx});
 end
 
 %Column 1: ROI id

@@ -1,7 +1,7 @@
 %%  WRAPPER for processing multi-ExR synapses data and converting to data table format%% 
 
 % Accompanies the manuscript by Kang*, Schroeder* et al., 2023
-% Last modified by Margaret Schroeder on 12/14/2022
+% Last modified by Margaret Schroeder on 6/3/23
 
 % Note: you can run this section-by-section or all at once.
 
@@ -9,26 +9,36 @@ clear all
 
 % Enter directory where your .mat files (output of
 % mExR_synapses_analysis_wrapper.m) here and change filenames appropriately
-parentfolder = 'E:/Margaret/mExR/2022.08_synapses/synapses_cropped/';
-load([parentfolder 'multiplex_imdatas_20221119.mat'])
-load([parentfolder 'multiplex_syndatas_20221119.mat'])
-load([parentfolder 'multiplex_pwdatas_20221119.mat'])
+parentfolder = 'E:/Margaret/mExR/2023.03_synapses/cropped_rois/';
+load([parentfolder 'S1-2_multiplex_imdatas_20230609.mat'])
 
 %% Input protein and extract fov names
 
 %edit your channel names here - these will get put into the data table
-proteins = {'Bassoon';'SynGAP';'NR1';'Homerref1';
-    'Shank3';'GluA1';'CaMKII';'Homerref2';
-    'Cav2.1';'NR2B';'RIM1';'Homerref3';
-    'PSD95';'Gephyrin';'Homerref4';
-    'Vglut';'Vgat';'Homerref5';
-    'mGluR5';'PSD95R6';'Homerref6';
-    'RIMBP';'Adam22';'Homerref7';
-    'GluA3';'Stargazin';'Homerref8';
-    'Synapsin1';'GABAB';'Homerref9';
-    'Synaptophysin';'NR1R10';'Homerref10';
-    'GluA4';'GluA2';'Homerref11'
+%for first mouse
+% proteins = {'Bassoon';'SynGAP';'NR1';
+%     'Shank3';'GluA1';'CaMKIIa';
+%     'Cav2.1';'NR2B';'RIM1';
+%     'PSD95';'Gephyrin';
+%     'Vglut';'Vgat';
+%     'RIMBP';
+%     'GluA3';'Stargazin';
+%     'GluA2';
+%     };
+proteins = {'SynGAP';'NR1';
+    'RIM1';'Gephyrin';
+    'GluA4';'IRSp53';
+    'GluA1';'NR2B';
+    'Homer1';'CaMKIIa';
+    'Shank3';
+    'Bassoon';
+    'Erbb4';'Stargazin';
+    'Elfn1';
+    'PSD95';'Cav2.1';
+    'Vglut';'GluA2';
+    'GluA3';
     };
+
 nproteins = length(proteins);
 
 for p1 = 1:length(proteins)
@@ -159,8 +169,8 @@ end
 
 %% combine all data tables and write to csv
 
-alldatas = [all_im_datas; all_syn_datas; all_pw_datas];
+alldatas = [all_im_datas];
 
 %CHANGE THE FILENAME HERE
-writetable(alldatas,[parentfolder 'allsynapsedata_ROI4_20221120.csv'])
+writetable(alldatas,[parentfolder 'allsynapsedata_S1-2_20230609.csv'])
 
