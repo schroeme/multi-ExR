@@ -50,7 +50,19 @@ function [distance_errors] = DG_ExSeq_reg_quality_vMS(img1,img2,params)
     thresh_img1 = prctile(img1(:),params.pct_thresh);
     thresh_img2 = prctile(img2(:),params.pct_thresh);
     i = 1;
+    
+    if params.doplot
+        img1_bin = imbinarize(img1,thresh_img1);
+        img2_bin = imbinarize(img2,thresh_img2);
 
+        figure()
+        subplot(1,2,1)
+        title('Round 1')
+        imagesc(max(img1_bin,[],3))
+        subplot(1,2,2)
+        title('Round n')
+        imagesc(max(img2_bin,[],3))
+    end
     xpos = randi(size(img1,1),N);
     ypos = randi(size(img1,2),N);
     zpos = randi(size(img1,3),N);
@@ -149,7 +161,7 @@ function [distance_errors] = DG_ExSeq_reg_quality_vMS(img1,img2,params)
     rgb(:,:,2) = img_offset_y_mip;
     rgb(:,:,3) = img_offset_z_mip;
     rgb = rgb./max(rgb(:));
-    if params.doplot
+    if params.doplotrgb
         figure; imshow(rgb)
     end
     % offsets_total(ignores,:) = [];
