@@ -107,5 +107,3 @@ for chidx = 1:nchannels
 end
     
 end
-
-
