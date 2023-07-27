@@ -32,7 +32,7 @@ fovs = {
 %     'S1ROI4';
 %     'S1ROI5';
 % 
-    'S2ROI1';
+%     'S2ROI1';
 %     'S2ROI2';
 %     'S2ROI3';
 %     'S2ROI4';    
@@ -52,10 +52,10 @@ params.xystep = 0.1625/18; %physical pixel size divided by expansoin factor, um/
 params.zstep = 0.25/18; %physical z-step size divided by expansion factor, um/voxel in z
 params.nchannels=3; %number of channels in each stack
 params.parentfolder = parentfolder;
-params.error_channel = {'1','1','1','1','1','1','1','1','1','1','1','1'};%,'4','4','2','2'}; %channel index, channel on which to calculate error
+params.error_channel = {'1','1'};%,'4','4','2','2'}; %channel index, channel on which to calculate error
 params.subtract_morph = 0; %subtract the morphology channel? no, because we are using it for reg quality analysis
 params.morph_channel = nan; %morphology channel used for registration, for subtracting out
-params.rounds = {'01','02','03','04','05','06','07','08','09','10','11','12'};%,'12','13','14','15','16','17','18','19'};%,'6','7','8','9','10','11','12'};%rounds to analyze for registration error
+params.rounds = {'01','10'};%,'12','13','14','15','16','17','18','19'};%,'6','7','8','9','10','11','12'};%rounds to analyze for registration error
 
 %Params for Dan Goodwin's registration quality evaluation
 params.subvol_dim=100;%length of side of sub-volume, in pixels to use in Dan's registration quality measure

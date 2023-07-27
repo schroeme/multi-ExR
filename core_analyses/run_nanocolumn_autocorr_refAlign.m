@@ -15,7 +15,8 @@ nsynapses = length(ch01_syn_files); %number of synapses for this ROI
 
 for sss = 1:nsynapses %loop through all synapses
     syn_name_splits = split(ch01_syn_files(sss).name,'_');
-    syn_name = [syn_name_splits{5} '_' syn_name_splits{6}];
+%     syn_name = [syn_name_splits{5} '_' syn_name_splits{6}];
+    syn_name = syn_name_splits{4};
     syn_files = dir([parentdir fov '*' syn_name]);
     
     for ii = 1:nChannels%loop through all channels

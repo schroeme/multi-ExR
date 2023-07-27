@@ -22,37 +22,74 @@
 %% Part 1: Initialize and set parameters
 clear all
 params.exp_factor = 18;   %expansion factor, adjust as needed
-params.parentdir = 'E:/Margaret/mExR/2022.08_synapses/synapses_cropped_nanocolumn_v3/'; %path to cropped ROIs for this analysis
+params.parentdir = 'E:/Margaret/mExR/2023.03_synapses/rois_cropped_nanocolumn_v2/'; %path to cropped ROIs for this analysis
+% params.parentdir = 'E:/Margaret/mExR/2022.08_synapses/synapses_cropped_nanocolumn_v3/'; %path to cropped ROIs for this analysis
 params.targetdir = params.parentdir;
 params.channels_rounds = {
-    '1-1';'1-2';'1-3';
-    '2-1';'2-2';'2-3';
-    '3-1';'3-2';'3-3';
+    '1-2';'1-3';
+    '2-2';'2-3';
+    '3-2';'3-3';
     '4-2';'4-3';
     '5-2';'5-3';
-    '7-2';
+    '6-3';
+    '7-3';
     '8-2';'8-3';
-    '11-3'
-    }; %FOR BATCH 1
-params.prepost = [
-    0 1 1 ... %pre/post identity of the synaptic protein. this is important for the xyzshift logic
-    1 1 1 ... %2
-    0 1 0 ... %3
-    1 1 ... %4
-    0 0 ... %5
-    0 ... %7
-    1 1 ... %8
-    1 %11
-]; %0 for pre and 1 for post
+    '9-2';
+    '10-2';'10-3';
+    '11-2';'11-3';
+    '12-2'};
+% params.channels_rounds = {
+%     '1-1';'1-2';'1-3';
+%     '2-1';'2-2';'2-3';
+%     '3-1';'3-2';'3-3';
+%     '4-2';'4-3';
+%     '5-2';'5-3';
+%     '7-2';
+%     '8-2';'8-3';
+%     '11-3'
+%     }; %FOR BATCH 1
+params.prepost = [1 0 ...
+    0 1 ...
+    1 1 ...
+    1 1 ...
+    1 1 ...
+    1 ...
+    0 ...
+    1 1 ...
+    1 ...
+    1 0 ...
+    1 1 ...
+    1];
+% params.prepost = [
+%     0 1 1 ... %pre/post identity of the synaptic protein. this is important for the xyzshift logic
+%     1 1 1 ... %2
+%     0 1 0 ... %3
+%     1 1 ... %4
+%     0 0 ... %5
+%     0 ... %7
+%     1 1 ... %8
+%     1 %11
+% ]; %0 for pre and 1 for post
 params.nChannels=length(params.channels_rounds); %number of channels
 params.rmax = 20;      %Maximum shift distance, in pixels (defined below)
 
-fov_names = {'ROI1';
-    'ROI2';
-    'ROI3';
-    'ROI4';
-    'ROI5'
+fov_names = {
+    'S1ROI1';
+    'S1ROI2';
+    'S1ROI3';
+    'S1ROI4';
+
+    'S2ROI1';
+    'S2ROI2';
+    'S2ROI3';
+    'S2ROI4'
     };
+% fov_names = {'ROI1';
+%     'ROI2';
+%     'ROI3';
+%     'ROI4';
+%     'ROI5'
+%     };
 params.pixel_size=82; %in nm, divide the physical pixel size of the camera chip by 2 and the z-step size by 3
 %.1625/2, .250/3 in nm (not exact)
 
@@ -84,7 +121,7 @@ params.flag=0;
 params.distance = [20,200]; %Min and max distance allowed for xyz shift, in nm
 
 params.override_shift = 1;
-parfor fidx = 1:length(fov_names)
+for fidx = 1:length(fov_names)
     %enrich_struct(fidx).res_enrich = run_nanocolumn_enrichment_refAlign(params,fov_names{fidx});
     run_nanocolumn_enrichment_refAlign(params,fov_names{fidx});
 end

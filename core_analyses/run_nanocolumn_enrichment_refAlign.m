@@ -17,7 +17,8 @@ nsynapses = length(ch01_syn_files); %number of synapses for this ROI
 
 for sss = 1:nsynapses %loop through all synapses
     syn_name_splits = split(ch01_syn_files(sss).name,'_');
-    syn_name = [syn_name_splits{5} '_' syn_name_splits{6}];
+%     syn_name = [syn_name_splits{5} '_' syn_name_splits{6}];
+    syn_name = syn_name_splits{4};
     syn_files = dir([parentdir fov '*' syn_name]);
     
     for ii = 1:nChannels%loop through all channels
@@ -52,7 +53,7 @@ for sss = 1:nsynapses %loop through all synapses
             im2 = expand(test2,[2,2,3]); 
             pixel = pixel_size/exp_factor; %Pixel size defined here, in nm
 
-            if (strcmp(ch1roundstr,ch2roundstr)) && (prepost(ii) == prepost(jj)) %if we're in the same round, and same pre-post identity, no xyz shift
+            if (prepost(ii) == prepost(jj))%(strcmp(ch1roundstr,ch2roundstr)) && (prepost(ii) == prepost(jj)) %if we're in the same round, and same pre-post identity, no xyz shift
                 xyzshift = [0,0,0];
             else 
                 xyzshift = [];
@@ -62,7 +63,7 @@ for sss = 1:nsynapses %loop through all synapses
             %are expected to be colocalized and occupy the same space (and thus require
             %no shift), set xyzshift = [0,0,0]
             distance = params.distance;
-            flag = 0;
+            flag = params.flag;
             
             [Raa,Rab,Rba,Rbb] = get_enrichment_3dMatrix_final(im1, im2, pixel, rmax, xyzshift, distance, step, flag);
             restemp = [1,sss,ii,jj,Rab'];

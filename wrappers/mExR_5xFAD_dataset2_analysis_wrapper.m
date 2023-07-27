@@ -1,7 +1,7 @@
 %%  WRAPPER for analyzing multi-ExR 5xFAD vs. WT data %% 
 
 % Accompanies the manuscript by Kang*, Schroeder* et al., 2023
-% Last modified by Margaret Schroeder on 5/19/2023
+% Last modified by Margaret Schroeder on 6/15/23
 
 % Image processing up to this point:
 % - background subtraction in Fiji and
@@ -63,58 +63,69 @@ params.morph_round = '1'; %reference/morphology round
 params.subtract_morph=1; %whether or not to subtract out the morphology/reference channel prior to quantifying other signal in the field of view
 params.lowerlim = 100; %minimum object size, in voxels
 params.upperlim = 5000; %maximum object size, in voxels
-params.morph_rad=50; %radius for morphological closing (dilation) of reference channel
+
 params.syn_rad=10; %radius for morphological closing (dilation) of synapses
 params.morph_close_syn = 1; %whether or not to morphologically close synapses
 params.vol_converter = ((2/3)*params.xystep + (1/3)*params.zstep)^3; %weighted average to convert voxels to um^3
 
 %define synaptic channels using 'round-channel'
 params.syn_channels = {
-   '1-2';%RIM 
-    '2-2';%GluA3
-    '2-3';%NR2B
-    '3-2';%RIM-BP
-    '3-3';%GluA2
-    '4-2';%GluA1
-    '4-3';%NR1
-    '5-3';%Shank3
-    '6-2';%Homer1
-    '8-2';%GluA4
-    '9-2'; %PSD95
-    '9-3';%Bassoon
+   '01-2';%RIM 
+    '02-2';%GluA3
+    '02-3';%NR2B
+    '03-2';%RIM-BP
+    '03-3';%GluA2
+    '04-2';%GluA1
+    '04-3';%NR1
+    '05-3';%Shank3
+    '06-2';%Homer1
+    '08-2';%GluA4
+    '09-2'; %PSD95
+    '09-3';%Bassoon
     '10-2';%synGAP
     '10-3';%IRsp53
 
     };
 
 %define amyloid-beta channels using 'round-channel'
-params.AB_chs = {'1-3';
-    '7-2';
-    '8-3'};
+params.AB_chs = {'01-3';
+    '07-2';
+    '08-3'};
 
 %% Determine absolute thresholds for abeta channels based on Abeta signal
 
 %change the parameters for this analysis
 params.thresh_method = 'zscore';
 params.thresh_multiplier = 5;
+params.morph_rad=10; %radius for morphological closing (dilation) of reference channel, in pixels
 
 %run this to determine the absolute threshold
 for fidx = 1:length(ROIs)
     thresh(fidx).roiname = ROIs{fidx};
     thresh(fidx).thresh = determine_intensity_threshold_5xFAD(params,ROIs{fidx},params.AB_chs);
 end
-%% Analyze overlap/correlation between different AB stains 
+
+%% Take averages in 5xFAD fields of view to determine thresholds
+
+FAD_inds = 1:9; %indices of WT fields of view
+abeta_thresholds = zeros(length(params.AB_chs),1);
+for pp = 1:length(params.AB_chs)
+    temp = [];
+    for ff = 1:length(FAD_inds)
+        temp = [temp; thresh(FAD_inds(ff)).thresh(pp)];
+    end
+    abeta_thresholds(pp,1) = round(mean(temp));
+end
+%% Analyze abundance of different Abeta stains 
 
 params.thresh_method = 'absolute';
-params.thresholds = [388 %~rounded averages as determined above
-526
-189];
+params.thresholds = abeta_thresholds;
 params.doplot=1;
 params.lowerlim = 150; %minimum object size, in voxels
 
 for fidx = 1:length(ROIs)
     data(fidx).roiname = ROIs{fidx};
-    [data(fidx).data] = analyze_AB_coloc(params,ROIs{fidx},params.AB_chs);
+    [data(fidx).data] = analyze_AB_abundance(params,ROIs{fidx},params.AB_chs);
 end
 
 %% Compile data - Abeta vs. WT abeta abundance
@@ -141,7 +152,7 @@ params.subtract_morph = 1;
 params.thresh_method = 'pct';
 params.thresh_pctl = 99.5;%
 params.doplot=1;
-camkii_chs = {'6-3'}; %round-channel format
+camkii_chs = {'06-3'}; %round-channel format
 
 for fidx = 1:length(ROIs)
     data(fidx).roiname = ROIs{fidx};
@@ -155,11 +166,11 @@ end
 res_5xFAD=[];
 res_WT=[];
 for ii = 10:17
-    res_WT = [res_WT; data(ii).data.nobjects]; %change this to pull different variables
+    res_WT = [res_WT; data(ii).data.vol]; %change this to pull different variables
 end
 
 for jj = 1:9
-     res_5xFAD = [res_5xFAD; data(jj).data.nobjects]; %change this to pull different variables
+     res_5xFAD = [res_5xFAD; data(jj).data.vol]; %change this to pull different variables
 end
 
 %% Determine absolute thresholds for synaptic channels based on wild-type signal
@@ -167,6 +178,7 @@ end
 %change the parameters for this analysis
 params.thresh_method = 'zscore';
 params.thresh_multiplier = 5;
+params.morph_rad = 10;
 
 %run this to determine the absolute threshold
 for fidx = 1:length(ROIs)
@@ -189,7 +201,7 @@ end
 %% Run quantification - synaptic channels, whole field of view
 
 %change the parameters for this analysis
-params.morph_rad=15;
+%params.morph_rad=15;
 params.subtract_morph = 1;
 params.lowerlim = 100;
 params.dofilt = 1;
@@ -224,86 +236,99 @@ end
 %14- IRsp53
 
 protein = 14; %change this to pull data for different channels
-res_WT =[];
-res_5xFAD = [];
-for ii = 10:17
-    res_WT = [res_WT; data(ii).data.vol(protein)]; %change this to pull different variables
+res = [];
+for ii = 1:17
+    res = [res; data(ii).data.vol(protein)]; %change this to pull different variables
 end
 
-for jj = 1:9
-     res_5xFAD = [res_5xFAD; data(jj).data.vol(protein)];
+
+%% Run quantification of amyloid beta in cropped nanoclusters
+% 
+%change the parameters for this analysis
+params.thresh_method = 'zscore';
+params.thresh_multiplier = 4;
+params.doplot=0;
+params.sizefilt=0;
+params.lowerlim=50;
+
+%path to cropped volumes
+params.parentfolder = 'E:/Margaret/mExR/2023.05_5xFAD/cropped_abeta_rois/';
+
+%ROIs to quantify (in this case, only 5xFAD)
+ROIs = {
+    %5xFAD
+    'S1ROI1';
+    'S1ROI2';    
+    'S1ROI3';
+    'S1ROI4';
+    'S1ROI5';
+
+    'S2ROI1';
+    'S2ROI2';
+    'S2ROI3';
+    'S2ROI4';   
+    };
+
+for fidx = 1:length(ROIs)
+    data(fidx).roiname = ROIs{fidx};
+    [data(fidx).data] = analyze_mExR_5xFAD_abeta_cropped(params,ROIs{fidx},params.AB_chs);
 end
 
-% %% Run quantification of amyloid beta in cropped nanoclusters
-% 
-% %change the parameters for this analysis
-% params.thresh_method = 'zscore';
-% params.thresh_multiplier = 4;
-% params.doplot=0;
-% params.sizefilt=0;
-% params.lowerlim=50;
-% 
-% %path to cropped volumes
-% params.parentfolder = 'E:/Margaret/mExR/2022.10_5xFAD/cropped_abeta/';
-% 
-% %ROIs to quantify (in this case, only 5xFAD)
-% ROIs = {
-% '5xFAD-ctx-ROI1';
-% '5xFAD-ctx-ROI2';
-% '5xFAD-ctx-ROI3';
-% '5xFAD-ctx-ROI4';
-% '5xFAD-ctx-ROI5'
-%     };
-% 
-% for fidx = 1:length(ROIs)
-%     data(fidx).roiname = ROIs{fidx};
-%     [data(fidx).data] = analyze_mExR_5xFAD_abeta_cropped(params,ROIs{fidx},params.AB_chs);
-% end
-% 
-% %% Compile data - amyloid beta in cropped nanoclusters
-% %This section puts the data in a convenient format for copy/paste into
-% %Excel or Prism for graphing. May require hard-coding to your preferences
-% 
-% topaste = [];
-% for ii = 1:length(ROIs)
-%     mat = cell2mat(data(ii).data.num_puncta); %change this to pull different variables
-%     topaste = [topaste; mat];
-% end
-% 
-% %% Run quantification of synaptic proteins in cropped abeta nanoclusters
-% 
-% %change the parameters for this analysis
-% params.doplot=0;
-% params.sizefilt=0;
-% params.lowerlim=100;
-% params.thresh_method = 'absolute';
-% params.thresholds = [55
-% 80
-% 40
-% 50];
-% 
-% %path to cropped volumes
-% params.parentfolder = 'E:/Margaret/mExR/2022.10_5xFAD/cropped_abeta/';
-% 
-% %ROIs to quantify (in this case, only 5xFAD)
-% ROIs = {
-% '5xFAD-ctx-ROI1';
-% '5xFAD-ctx-ROI2';
-% '5xFAD-ctx-ROI3';
-% '5xFAD-ctx-ROI4';
-% '5xFAD-ctx-ROI5'
-%     };
-% 
-% for fidx = 1:length(ROIs)
-%     data(fidx).roiname = ROIs{fidx};
-%     [data(fidx).data] = analyze_mExR_5xFAD_abeta_cropped(params,ROIs{fidx},params.syn_channels);
-% end
-% 
-% %% Compile data - amyloid beta in cropped nanoclusters
-% %This section puts the data in a convenient format for copy/paste into
-% %Excel or Prism for graphing. May require hard-coding to your preferences
-% topaste = [];
-% for ii = 1:length(ROIs)
-%     mat = cell2mat(data(ii).data.num_puncta); %change this to pull different variables of interest
-%     topaste = [topaste; mat];
-% end
+%% Compile data - amyloid beta in cropped nanoclusters
+%This section puts the data in a convenient format for copy/paste into
+%Excel or Prism for graphing. May require hard-coding to your preferences
+
+topaste = [];
+for ii = 1:length(ROIs)
+    mat = cell2mat(data(ii).data.punctavol); %change this to pull different variables
+    topaste = [topaste; mat];
+end
+
+%% Run quantification of synaptic proteins in cropped abeta nanoclusters
+
+%change the parameters for this analysis
+params.doplot=0;
+params.sizefilt=0;
+params.lowerlim=100;
+params.thresh_method = 'absolute';
+params.thresholds = syn_thresholds;
+
+for fidx = 1:length(ROIs)
+    data(fidx).roiname = ROIs{fidx};
+    [data(fidx).data] = analyze_mExR_5xFAD_abeta_cropped(params,ROIs{fidx},params.syn_channels);
+end
+
+%% Compile data - amyloid beta in cropped nanoclusters
+%This section puts the data in a convenient format for copy/paste into
+%Excel or Prism for graphing. May require hard-coding to your preferences
+topaste = [];
+for ii = 1:length(ROIs)
+    mat = cell2mat(data(ii).data.punctavol); %change this to pull different variables of interest
+    topaste = [topaste; mat];
+end
+
+%% Run quantification of PLP1 in cropped abeta nanoclusters
+
+%change the parameters for this analysis
+params.doplot=1;
+params.sizefilt=0;
+params.lowerlim=100;
+params.thresh_method = 'zscore';
+params.thresh_multiplier = 4;
+params.plp_channels = {'05-2'};
+
+for fidx = 1:length(ROIs)
+    data(fidx).roiname = ROIs{fidx};
+    [data(fidx).data] = analyze_mExR_5xFAD_abeta_cropped(params,ROIs{fidx},params.plp_channels);
+end
+
+%% Compile data - PLP1 in cropped nanoclusters
+
+%This section puts the data in a convenient format for copy/paste into
+%Excel or Prism for graphing. May require hard-coding to your preferences
+topaste = [];
+for ii = 1:length(ROIs)
+    mat = cell2mat(data(ii).data.punctavol); %change this to pull different variables of interest
+    topaste = [topaste; mat];
+end
+

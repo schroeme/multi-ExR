@@ -17,7 +17,7 @@ for chidx = 1:nchannels
     chsplits = split(chs{chidx},"-");
     roundno = chsplits{1};
     chno = chsplits{2};
-    fnames = dir([parentfolder filesep '*' fov '*round00' roundno '*ch0' chno '*.tif']);
+    fnames = dir([parentfolder filesep '*' fov '*round0' roundno '*ch0' chno '*.tif']);
 
     SNR_temp=[];
     npuncta_temp=[];
@@ -30,7 +30,9 @@ for chidx = 1:nchannels
         img = double(img);
         %img = mat2gray(img);
        
-        params.threshold=params.thresholds(chidx);
+        if strcmp(params.thresh_method,'absolute')
+            params.threshold=params.thresholds(chidx);
+        end
         imbin = binarize_intensity_threshold(img,params);
 
         if strcmp(params.filt,'med')
@@ -68,9 +70,9 @@ for chidx = 1:nchannels
         
         if nobjects > 0 
 
-            masked_image = img .* double(mask);
-            inverted_mask = 1-double(mask);
-            bg_image = img .* inverted_mask;
+%             masked_image = img .* double(mask);
+%             inverted_mask = 1-double(mask);
+%             bg_image = img .* inverted_mask;
 
 %             SNRval = mean(masked_image(masked_image>0))/mean(bg_image(bg_image>0));
 
@@ -78,9 +80,9 @@ for chidx = 1:nchannels
             vols = voltab.Volume;
             vols = vols * params.vol_converter;
 
-            paxtab = regionprops3(CC_signal,'PrincipalAxisLength');
-            pax = paxtab.PrincipalAxisLength;
-            ARs = pax(:,1)./pax(:,2);
+%             paxtab = regionprops3(CC_signal,'PrincipalAxisLength');
+%             pax = paxtab.PrincipalAxisLength;
+%             ARs = pax(:,1)./pax(:,2);
 
 %             SNR_temp(ssidx,1) = SNRval;
             npuncta_temp(ssidx,1) = nobjects;
