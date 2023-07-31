@@ -1,7 +1,7 @@
 %%  WRAPPER for analyzing multi-ExR 5xFAD vs. WT data %% 
 
 % Accompanies the manuscript by Kang*, Schroeder* et al., 2023
-% Last modified by Margaret Schroeder on 6/15/23
+% Last modified by Margaret Schroeder on 7/27/23
 
 % Image processing up to this point:
 % - background subtraction in Fiji and
@@ -248,7 +248,7 @@ end
 params.thresh_method = 'zscore';
 params.thresh_multiplier = 4;
 params.doplot=0;
-params.sizefilt=0;
+params.sizefilt=1;
 params.lowerlim=50;
 
 %path to cropped volumes
@@ -269,6 +269,7 @@ ROIs = {
     'S2ROI4';   
     };
 
+%% Running section
 for fidx = 1:length(ROIs)
     data(fidx).roiname = ROIs{fidx};
     [data(fidx).data] = analyze_mExR_5xFAD_abeta_cropped(params,ROIs{fidx},params.AB_chs);
@@ -280,30 +281,48 @@ end
 
 topaste = [];
 for ii = 1:length(ROIs)
-    mat = cell2mat(data(ii).data.punctavol); %change this to pull different variables
+    mat = cell2mat(data(ii).data.num_puncta); %change this to pull different variables
     topaste = [topaste; mat];
 end
 
 %% Run quantification of synaptic proteins in cropped abeta nanoclusters
 
+params.syn_channels = {
+   '01-2';%RIM 
+    '02-2';%GluA3
+    '02-3';%NR2B
+    '03-2';%RIM-BP
+    '03-3';%GluA2
+    '04-2';%GluA1
+    '04-3';%NR1
+    '05-3';%Shank3
+    '06-2';%Homer1
+    '08-2';%GluA4
+    '09-2'; %PSD95
+    '09-3';%Bassoon
+    '10-2';%synGAP
+    '10-3';%IRsp53
+
+    };
+
 %change the parameters for this analysis
 params.doplot=0;
-params.sizefilt=0;
-params.lowerlim=100;
-params.thresh_method = 'absolute';
-params.thresholds = syn_thresholds;
+params.sizefilt=1;
+params.lowerlim=50;
+params.thresh_method = 'zscore';
+params.thresh_multiplier = 4;
 
 for fidx = 1:length(ROIs)
     data(fidx).roiname = ROIs{fidx};
     [data(fidx).data] = analyze_mExR_5xFAD_abeta_cropped(params,ROIs{fidx},params.syn_channels);
 end
 
-%% Compile data - amyloid beta in cropped nanoclusters
+%% Compile data - synaptic proteins in cropped nanoclusters
 %This section puts the data in a convenient format for copy/paste into
 %Excel or Prism for graphing. May require hard-coding to your preferences
 topaste = [];
 for ii = 1:length(ROIs)
-    mat = cell2mat(data(ii).data.punctavol); %change this to pull different variables of interest
+    mat = cell2mat(data(ii).data.num_puncta); %change this to pull different variables of interest
     topaste = [topaste; mat];
 end
 
@@ -311,8 +330,8 @@ end
 
 %change the parameters for this analysis
 params.doplot=1;
-params.sizefilt=0;
-params.lowerlim=100;
+params.sizefilt=1;
+params.lowerlim=50;
 params.thresh_method = 'zscore';
 params.thresh_multiplier = 4;
 params.plp_channels = {'05-2'};
@@ -328,7 +347,48 @@ end
 %Excel or Prism for graphing. May require hard-coding to your preferences
 topaste = [];
 for ii = 1:length(ROIs)
-    mat = cell2mat(data(ii).data.punctavol); %change this to pull different variables of interest
+    mat = cell2mat(data(ii).data.num_puncta); %change this to pull different variables of interest
     topaste = [topaste; mat];
 end
 
+%% Run quantification of overlap of GluA2/D54D2
+
+params.overlap_chs = {'03-3';%GluA2
+    '07-2'};%D54D2
+params.sizefilt=1;
+params.lowerlim=50;
+params.thresh_method = 'zscore';
+params.thresh_multiplier = 4;
+params.doplot = 1;
+
+overlaps_combined = [];
+vol1_combined = [];
+vol2_combined = [];
+
+for fidx = 1:length(ROIs)
+    [overlaps_fov,vol1_fov,vol2_fov] = analyze_AB_synapse_coloc(params,ROIs{fidx},params.overlap_chs);
+    overlaps_combined = [overlaps_combined; overlaps_fov];
+    vol1_combined = [vol1_combined; vol1_fov];
+    vol2_combined = [vol2_combined; vol2_fov];
+end
+
+topaste = [vol1_combined vol2_combined overlaps_combined];
+
+%% Run quantification of overlap of GluA4/D54D2
+%Note - the scrip
+params.overlap_chs = {
+    '08-2';%GluA4
+    '07-2'};%D54D2
+
+overlaps_combined = [];
+vol1_combined = [];
+vol2_combined = [];
+
+for fidx = 1:length(ROIs)
+    [overlaps_fov,vol1_fov,vol2_fov] = analyze_AB_synapse_coloc(params,ROIs{fidx},params.overlap_chs);
+    overlaps_combined = [overlaps_combined; overlaps_fov];
+    vol1_combined = [vol1_combined; vol1_fov];
+    vol2_combined = [vol2_combined; vol2_fov];
+end
+
+topaste = [vol1_combined vol2_combined overlaps_combined];
