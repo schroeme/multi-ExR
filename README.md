@@ -32,16 +32,16 @@ Code base accompanying Kang*, Schroeder* et al., 2023 (preprint here: []).
    * After adding all ROIs save them as a .zip file named as "[ROIname]_rois.zip"
    * Script name(s): `crop_ROIs_zrestrict.ijm`
 6. Image / ROI analysis (MATLAB)
-   * Script name(s): `mExR_5xFAD_analysis_wrapper.m`, `mExR_nanocolumn_analysis_wrapper.m`, `mExR_validation_analysis_wrapper.m`, `mExR_synapses_analysis_wrapper.m`, `mExR_synapse_data_processing.m`, `mExR_cultured_neurons_analysis_wrapper.m`
+   * Script name(s): `mExR_5xFAD_dataset2_analysis_wrapper.m`, and `mExR_validation_analysis_wrapper.m`
 7. Post-processing, graphing, statistical testing (Python, Prism, Excel)
-   * Script name(s): `analyze_multiExr_nancolumn_data.ipynb`, `analyze_multiExR_synapse_data.ipynb`
+   * Script name(s): `5xFAD_vs_WT_abeta_lmer.ipynb`, `5xFAD_vs_WT_synapses_lmer.ipynb`.
 
 ## File naming convention
 Prior to pre-processing, if you wish to use our pre-processing scripts, z-stacks should be contained in a directory with the following organization: [round]/[condition]/ and named "ROI[N] [magnification].tif". Alternatively, you can name the files and organize your folders however you want, and modify the pre-processing .ijm scripts accordingly. After pre-processing (before registration), individual channel z-stacks should be named according to the following convention: [FIELD-OF-VIEW]_round[NNN]_ch[NN].tif. For example, 'WT-Ctx-ROI1_round001_ch01.tif'. After registration, the analysis scripts assume a similar naming convention, though the appendix "_warped.tif" or "_affine.tif" may be added, depending on which registration pipeline you use.
 
 ## Notes on the scripts in the folders
 
-Note that not all scripts provided here were used for analysis provided in the manuscript. Please check the wrappers to see which scripts were actually called.
+Note that not all scripts provided here were used for analysis provided in the manuscript. Scripts in the "in_progress" subfolders are still under development and were not used for manuscript figures. Please check the wrappers to see which scripts were actually called.
 
 ## Example dataset and tutorial
 [Coming soon].
