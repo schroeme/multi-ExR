@@ -75,52 +75,61 @@ for im1 = 1:nchannels %nested loops because we are looking at colocalization
             end
             
             AB_mask = AB_mask>1;
-            img1_bin = double(img1_bin) - double(max(AB_mask,[],3));
-            img1_bin(img1_bin<0) = 0;
+            img1_bin_masked = double(img1_bin) - double(max(AB_mask,[],3));
+            img1_bin_masked(img1_bin_masked<0) = 0;
+
+            if params.savemasks
+                saveastiff(uint8(AB_mask),[params.savefolder im1_files(1).name(1:end-4) '_ABmask.tif'])
+                saveastiff(uint8(img1_bin),[params.savefolder im1_files(1).name(1:end-4) '_binarized.tif'])
+                saveastiff(uint8(img1_bin_masked),[params.savefolder im1_files(1).name(1:end-4) '_masked.tif'])
+            end
         end
 
         %filter the images
         if params.dofilt
-            img1_bin = medfilt3(img1_bin,params.filt_size);
+            img1_bin_masked = medfilt3(img1_bin_masked,params.filt_size);
         end
 
         %get rid of very small synapses less than 100 voxels
-        img1_bin = bwareaopen(img1_bin,params.lowerlim);
+        img1_bin_masked = bwareaopen(img1_bin_masked,params.lowerlim);
         
         %get rid of very large volumes
-        CC = bwconncomp(img1_bin,26);
+        CC = bwconncomp(img1_bin_masked,26);
         volumes = regionprops3(CC,'Volume');
         volumes = volumes.Volume;
         nobjects_temp=CC.NumObjects;
 
-        blank = zeros(size(img1_bin));
+        blank = zeros(size(img1_bin_masked));
         for obidx = 1:nobjects_temp
             if volumes(obidx) <= params.upperlim
                 blank(CC.PixelIdxList{obidx})=1;
             end
         end
         
-        img1_bin=blank;
+        img1_bin_masked=blank;
         %calculate overlap and correlation
-        nnz1 = nnz(img1_bin);
+        nnz1 = nnz(img1_bin_masked);
 
         %plot binary images
         if params.doplot
             figure;
-            imagesc(max(img1_bin,[],3));
+            imagesc(max(img1_bin_masked,[],3));
             title(im1_files(1).name)
         end
 
+        if params.savemasks
+            saveastiff(uint8(img1_bin_masked),[params.savefolder im1_files(1).name(1:end-4) '_masked_filtered.tif'])
+        end
         %mask the images to get rid of background noise. we don't want to
         %correlate that
-        img1_masked = double(img1 .* img1_bin);
+        img1_masked = double(img1 .* img1_bin_masked);
         
         vol(im1,1)=nnz1 * params.vol_converter;
 
         %calculate signal within masked region
         mean_signal(im1,1) = mean(img1_masked(img1_masked>0));
         int_signal(im1,1) = sum(sum(img1_masked(img1_masked>0)));
-        CC = bwconncomp(img1_bin,26);
+        CC = bwconncomp(img1_bin_masked,26);
         nobjects(im1,1)=CC.NumObjects;
 
         %extract volume, aspect ratio from synapses

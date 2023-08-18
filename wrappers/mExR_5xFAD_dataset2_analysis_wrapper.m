@@ -35,7 +35,7 @@ ROIs = {
     'S2ROI3';
     'S2ROI4';    
 
-    %WT
+    % WT
     'S3ROI1';
     'S3ROI2';
     'S3ROI3';
@@ -79,11 +79,15 @@ params.syn_channels = {
     '04-3';%NR1
     '05-3';%Shank3
     '06-2';%Homer1
+    '06-3';%CaMKIIa
+    '07-3';%Cav2.1
     '08-2';%GluA4
     '09-2'; %PSD95
     '09-3';%Bassoon
     '10-2';%synGAP
     '10-3';%IRsp53
+    '11-2';%Stargazin
+    '11-3';%Gephyrin
 
     };
 
@@ -144,35 +148,6 @@ for jj = 10:17
     res_WT = [res_WT;temp];
 end
 
-%% Quantify differences in CamKIIa signal and volume 
-
-%change the parameters for this analysis
-params.lowerlim = 50;
-params.subtract_morph = 1;
-params.thresh_method = 'pct';
-params.thresh_pctl = 99.5;%
-params.doplot=1;
-camkii_chs = {'06-3'}; %round-channel format
-
-for fidx = 1:length(ROIs)
-    data(fidx).roiname = ROIs{fidx};
-    [data(fidx).data] = analyze_camkii(params,ROIs{fidx},camkii_chs,params.AB_chs);
-end
-
-%% Compile data - CamKIIa in WT vs. 5xFAD
-%This section puts the data in a convenient format for copy/paste into
-%Excel or Prism for graphing. May require hard-coding to your preferences
-
-res_5xFAD=[];
-res_WT=[];
-for ii = 10:17
-    res_WT = [res_WT; data(ii).data.vol]; %change this to pull different variables
-end
-
-for jj = 1:9
-     res_5xFAD = [res_5xFAD; data(jj).data.vol]; %change this to pull different variables
-end
-
 %% Determine absolute thresholds for synaptic channels based on wild-type signal
 
 %change the parameters for this analysis
@@ -181,7 +156,7 @@ params.thresh_multiplier = 5;
 params.morph_rad = 10;
 
 %run this to determine the absolute threshold
-for fidx = 1:length(ROIs)
+for fidx = 10:length(ROIs)
     thresh(fidx).roiname = ROIs{fidx};
     thresh(fidx).thresh = determine_intensity_threshold_5xFAD(params,ROIs{fidx},params.syn_channels);
 end
@@ -206,7 +181,9 @@ params.subtract_morph = 1;
 params.lowerlim = 100;
 params.dofilt = 1;
 params.mask_abeta=1;
-params.doplot=1;
+params.doplot=0;
+params.savefolder = 'E:/Margaret/mExR/2023.05_5xFAD/cropped_z/masks/';
+params.savemasks =1;
 
 params.thresh_method = 'absolute';
 params.thresholds = syn_thresholds;
@@ -220,22 +197,26 @@ end
 %This section puts the data in a convenient format for copy/paste into
 %Excel or Prism for graphing. May require hard-coding to your preferences
 
-%1- RIM 
-%2 - GluA3
-%3 - NR2B
-%4- RIM-BP
-%5 - GluA2
-%6 - GluA1
-%7 - NR1
-%8 Shank3
-%9 - Homer1
-%10 - GluA4
-%11 - PSD95
-%12- Bassoon
-%13 - synGAP
-%14- IRsp53
+   % '01-2';%RIM 
+   %  '02-2';%GluA3
+   %  '02-3';%NR2B
+   %  '03-2';%RIM-BP
+   %  '03-3';%GluA2
+   %  '04-2';%GluA1
+   %  '04-3';%NR1
+   %  '05-3';%Shank3
+   %  '06-2';%Homer1
+   %  '06-3';%CaMKIIa
+   %  '07-3';%Cav2.1
+   %  '08-2';%GluA4
+   %  '09-2'; %PSD95
+   %  '09-3';%Bassoon
+   %  '10-2';%synGAP
+   %  '10-3';%IRsp53
+   %  '11-2';%Stargazin
+   %  '11-3';%Gephyrin
 
-protein = 14; %change this to pull data for different channels
+protein = 18; %change this to pull data for different channels
 res = [];
 for ii = 1:17
     res = [res; data(ii).data.vol(protein)]; %change this to pull different variables
@@ -288,25 +269,29 @@ end
 %% Run quantification of synaptic proteins in cropped abeta nanoclusters
 
 params.syn_channels = {
-   '01-2';%RIM 
-    '02-2';%GluA3
-    '02-3';%NR2B
-    '03-2';%RIM-BP
-    '03-3';%GluA2
-    '04-2';%GluA1
-    '04-3';%NR1
-    '05-3';%Shank3
-    '06-2';%Homer1
-    '08-2';%GluA4
-    '09-2'; %PSD95
-    '09-3';%Bassoon
-    '10-2';%synGAP
-    '10-3';%IRsp53
+   % '01-2';%RIM 
+   %  '02-2';%GluA3
+   %  '02-3';%NR2B
+   %  '03-2';%RIM-BP
+   %  '03-3';%GluA2
+   %  '04-2';%GluA1
+   %  '04-3';%NR1
+   %  '05-3';%Shank3
+   %  '06-2';%Homer1
+   %  '06-3';%CaMKIIa
+   %  '07-3';%Cav2.1
+   %  '08-2';%GluA4
+   %  '09-2'; %PSD95
+   %  '09-3';%Bassoon
+   %  '10-2';%synGAP
+   %  '10-3';%IRsp53
+   %  '11-2';%Stargazin
+    '11-3';%Gephyrin
 
     };
 
 %change the parameters for this analysis
-params.doplot=0;
+params.doplot=1;
 params.sizefilt=1;
 params.lowerlim=50;
 params.thresh_method = 'zscore';
@@ -322,7 +307,7 @@ end
 %Excel or Prism for graphing. May require hard-coding to your preferences
 topaste = [];
 for ii = 1:length(ROIs)
-    mat = cell2mat(data(ii).data.num_puncta); %change this to pull different variables of interest
+    mat = cell2mat(data(ii).data.punctavol); %change this to pull different variables of interest
     topaste = [topaste; mat];
 end
 
@@ -347,14 +332,15 @@ end
 %Excel or Prism for graphing. May require hard-coding to your preferences
 topaste = [];
 for ii = 1:length(ROIs)
-    mat = cell2mat(data(ii).data.num_puncta); %change this to pull different variables of interest
+    mat = cell2mat(data(ii).data.punctavol); %change this to pull different variables of interest
     topaste = [topaste; mat];
 end
 
 %% Run quantification of overlap of GluA2/D54D2
 
-params.overlap_chs = {'03-3';%GluA2
-    '07-2'};%D54D2
+params.overlap_chs = {
+    '07-2';%D54D2
+    '03-3'};%GluA2
 params.sizefilt=1;
 params.lowerlim=50;
 params.thresh_method = 'zscore';
@@ -377,8 +363,8 @@ topaste = [vol1_combined vol2_combined overlaps_combined];
 %% Run quantification of overlap of GluA4/D54D2
 %Note - the scrip
 params.overlap_chs = {
-    '08-2';%GluA4
-    '07-2'};%D54D2
+    '07-2';%D54D2
+    '08-2'};%GluA4
 
 overlaps_combined = [];
 vol1_combined = [];
@@ -392,3 +378,4 @@ for fidx = 1:length(ROIs)
 end
 
 topaste = [vol1_combined vol2_combined overlaps_combined];
+
