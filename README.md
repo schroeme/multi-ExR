@@ -15,7 +15,6 @@ Code base accompanying Kang*, Schroeder* et al., 2023 (preprint here: []).
 ## Additional software packages/environments needed
 1. [Fiji](https://imagej.net/software/fiji/)
 2. [ExSeqProcessing MATLAB pipeline](https://github.com/dgoodwin208/ExSeqProcessing) (put this in the same working directory as this repository)
-3. Python environments: [link to .env files]
 
 ## Detailed multi-ExR analysis pipeline
 1. Image pre-processing (Fiji)
