@@ -341,8 +341,8 @@ end
 params.overlap_chs = {
     '07-2';%D54D2
     '03-3'};%GluA2
-params.sizefilt=1;
-params.lowerlim=50;
+params.sizefilt=0;
+params.lowerlim=20;
 params.thresh_method = 'zscore';
 params.thresh_multiplier = 4;
 params.doplot = 1;
@@ -379,3 +379,45 @@ end
 
 topaste = [vol1_combined vol2_combined overlaps_combined];
 
+%% Run quantification of overlap of GluA1/D54D2
+%Note - the scrip
+params.sizefilt=1;
+params.lowerlim=50;
+params.thresh_method = 'zscore';
+params.thresh_multiplier = 4;
+params.doplot = 1;
+params.overlap_chs = {
+    '07-2';%D54D2
+    '04-2'};%GluA1
+
+overlaps_combined = [];
+vol1_combined = [];
+vol2_combined = [];
+
+for fidx = 1:length(ROIs)
+    [overlaps_fov,vol1_fov,vol2_fov] = analyze_AB_synapse_coloc(params,ROIs{fidx},params.overlap_chs);
+    overlaps_combined = [overlaps_combined; overlaps_fov];
+    vol1_combined = [vol1_combined; vol1_fov];
+    vol2_combined = [vol2_combined; vol2_fov];
+end
+
+topaste = [vol1_combined vol2_combined overlaps_combined];
+
+%% Run quantification of overlap of GluA3/D54D2
+
+params.overlap_chs = {
+    '07-2';%D54D2
+    '02-2'};%GluA3
+
+overlaps_combined = [];
+vol1_combined = [];
+vol2_combined = [];
+
+for fidx = 1:length(ROIs)
+    [overlaps_fov,vol1_fov,vol2_fov] = analyze_AB_synapse_coloc(params,ROIs{fidx},params.overlap_chs);
+    overlaps_combined = [overlaps_combined; overlaps_fov];
+    vol1_combined = [vol1_combined; vol1_fov];
+    vol2_combined = [vol2_combined; vol2_fov];
+end
+
+topaste = [vol1_combined vol2_combined overlaps_combined];
