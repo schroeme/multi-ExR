@@ -17,7 +17,7 @@
 clear all
 
 %folder containing registered image volumes
-parentfolder = 'E:/Margaret/mExR/2022.05_validation/zcropped/';
+parentfolder = 'A:/Margaret/mExR/2022.05_validation/cropped_z/';
 
 %fields of view within this folder to analyze. I have commented out some
 %fields of view here because stripping data was not obtained for all ROIs,
@@ -85,63 +85,66 @@ save([parentfolder 'validation_SNR_data_20230419.mat'],'data')
 
 %% Running section for manually-cropped synaptic ROIs analysis
 
+%Last run 1/24/24 with new cropped synapses
 %update the folder for this analysis
-params.parentfolder = 'E:/Margaret/mExR/2022.05_validation/cropped_ROIs/';
+params.parentfolder = 'A:/Margaret/mExR/2022.05_validation/cropped_ROIs/';
 
 % Example of what these would look like if I were analyzing all rounds,
 % non-stripping
-% fovs = {
-%     'ROI1';
-%     'ROI2';
-%     'ROI3';
-%     'ROI4';
-%     'ROI5';
-%     'ROI6';
-%     'ROI8'
-%     };
-% params.rounds = {'1';'2';'3';'4';'5';'6';'7'};%if analyzing strip rounds
-
 fovs = {
-%     'ROI1';
-%     'ROI2';
+    'ROI1';
+    'ROI2';
     'ROI3';
     'ROI4';
-%     'ROI5';
+    'ROI5';
     'ROI6';
     'ROI8'
     };
+params.rounds = {'1';'2';'3';'4';'5';'6';'7'};%if analyzing non-strip rounds
 
-params.rounds = {'1';'1-strip'; '2';'2-strip';'3';'3-strip';'4';'5';'6';'7'};%if analyzing strip rounds
+% fovs = {
+% %     'ROI1';
+% %     'ROI2';
+%     'ROI3';
+%     'ROI4';
+% %     'ROI5';
+%     'ROI6';
+%     'ROI8'
+%     };
+% 
+% params.rounds = {'1';'1-strip'; '2';'2-strip';'3';'3-strip';'4';'5';'6';'7'};%if analyzing strip rounds
 
 %params.medfilt = [5 5 1];
 params.filt='none'; %don't do median filtering
 params.morph_close=0; %don't do morphological closing
 params.savechunks=0; %don't save down any objects
-params.lowerlim = 0.03; %lower limit of size filter for object detection
+params.lowerlim = 0.02; %lower limit of size filter for object detection
+params.channels = {'ch02','ch03'};
+params.doplot=1;
 for fovidx = 1:length(fovs)
     fov = fovs{fovidx};
     disp(fov);
-    [datasyn(fovidx).SNR,datasyn(fovidx).num_puncta,datasyn(fovidx).punctavol] = analyze_mExR_validation_cropped(fov,params);
+    [datasyn(fovidx).SNR,datasyn(fovidx).num_puncta,datasyn(fovidx).punctavol,datasyn(fovidx).punctaint,datasyn(fovidx).nsynapses] = analyze_mExR_validation_cropped(fov,params);
 end
 
 %% Reshape and compile data for copy/paste into Prism
 
 %Format the data for convenient copy/paste into Excel or GraphPad Prism
-%protein order = SMI, synGAP, bassoon
+%protein order = SynGAP, bassoon
 %want to get - rows corresponding to rounds, columns corresponding to fovs
-protein = 3; %what protein we want to extract data for
+protein = 2; %what protein we want to extract data for
 res = []; %empty for holding results
 
 for ii = 1:length(fovs)
     for jj = 1:length(params.rounds)
-        res(jj,ii) = datasyn(ii).SNR(jj,protein);
+        res(jj,ii) = datasyn(ii).punctaint(jj,protein);
     end
 end
 
 %% Save down the data
 
 %change the filename here!
-save([parentfolder 'validation_cropped-synapses_data_20220814.mat'],'datasyn')
+save([parentfolder 'validation_cropped-synapses_data_20240129.mat'],'datasyn')
 
 %% Measure the volume occupied by each channel
 % In order to quantify what the feature density should be for adequate

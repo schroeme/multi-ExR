@@ -161,8 +161,10 @@ function [distance_errors] = DG_ExSeq_reg_quality_vMS(img1,img2,params)
     rgb(:,:,2) = img_offset_y_mip;
     rgb(:,:,3) = img_offset_z_mip;
     rgb = rgb./max(rgb(:));
+    grayim = mat2gray(rgb);
     if params.doplotrgb
         figure; imshow(rgb)
+        figure; imagesc(grayim)
     end
     % offsets_total(ignores,:) = [];
 
