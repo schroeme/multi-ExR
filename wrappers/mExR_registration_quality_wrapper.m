@@ -14,29 +14,40 @@ clear all
 
 %folder where the field of view image volumes are stored (either full or
 %cropped z-stacks to mutually overlapping areas)
-parentfolder = 'E:/Margaret/mExR/2023.03_synapses/cropped_z/';
+parentfolder = 'A:/Margaret/mExR/2023.02_validation/cropped_z/';
 
 fovs = {
-%     'ROI1';
-%     'ROI2';
-%     'ROI3';
-%     'ROI4';
+    % 'mouse1-ROI1';
+    % 'mouse1-ROI2';
+    % 'mouse1-ROI3';
+    % 'mouse1-ROI4';
+    % 
+    % 'mouse2-ROI1';
+    % 'mouse2-ROI2';
+    % 'mouse2-ROI3';
+    % 'mouse2-ROI4';    
+    % 'ROI1';
+    'ROI2';
+    % 'ROI3';
+    % 'ROI4';
+    % 'ROI6';
+    % 'ROI8'
 %     'ROI5'
 %     'ROI1';
 %     'ROI2';
 %     'ROI3';
 %     'ROI4';
 %     'S1ROI1';
-    'S1ROI2';    
+%     'S1ROI2';    
 %     'S1ROI3';
 %     'S1ROI4';
-%     'S1ROI5';
-% 
+% %     'S1ROI5';
+% % 
 %     'S2ROI1';
 %     'S2ROI2';
 %     'S2ROI3';
 %     'S2ROI4';    
-% 
+% % 
 %     'S3ROI1';
 %     'S3ROI2';
 %     'S3ROI3';
@@ -52,10 +63,10 @@ params.xystep = 0.1625/18; %physical pixel size divided by expansoin factor, um/
 params.zstep = 0.25/18; %physical z-step size divided by expansion factor, um/voxel in z
 params.nchannels=3; %number of channels in each stack
 params.parentfolder = parentfolder;
-params.error_channel = {'1','1'};%,'4','4','2','2'}; %channel index, channel on which to calculate error
+params.error_channel = {'4','4','4','4','4'};%,'1','1','1','1','1','1'}; %channel index, channel on which to calculate error
 params.subtract_morph = 0; %subtract the morphology channel? no, because we are using it for reg quality analysis
 params.morph_channel = nan; %morphology channel used for registration, for subtracting out
-params.rounds = {'01','10'};%,'12','13','14','15','16','17','18','19'};%,'6','7','8','9','10','11','12'};%rounds to analyze for registration error
+params.rounds = {'01','11','14','17','18'};%,'6','7','8','9','10','11','12'};%rounds to analyze for registration error
 
 %Params for Dan Goodwin's registration quality evaluation
 params.subvol_dim=100;%length of side of sub-volume, in pixels to use in Dan's registration quality measure
@@ -77,10 +88,15 @@ end
 
 %% Organize data for easy copy/paste
 % modify as needed for convenient copy/paste into Excel or Prism for plotting
-fovid = 2;
+fovid = 1;
 cp = [error_DG{1,fovid}{1,2}...
     error_DG{1,fovid}{1,3} error_DG{1,fovid}{1,4}...
-    error_DG{1,fovid}{1,5} error_DG{1,fovid}{1,6} error_DG{1,fovid}{1,7}...
-    error_DG{1,fovid}{1,8} error_DG{1,fovid}{1,9} error_DG{1,fovid}{1,10}...
-    error_DG{1,fovid}{1,11} error_DG{1,fovid}{1,12}
+    error_DG{1,fovid}{1,5}
+    % error_DG{1,fovid}{1,5} error_DG{1,fovid}{1,6}...
+    % error_DG{1,fovid}{1,7} error_DG{1,fovid}{1,8}...
+    % error_DG{1,fovid}{1,9} error_DG{1,fovid}{1,10}...
+    % error_DG{1,fovid}{1,11} error_DG{1,fovid}{1,12} ...
+    % error_DG{1,fovid}{1,13} error_DG{1,fovid}{1,14} ...
+    %     error_DG{1,fovid}{1,15} error_DG{1,fovid}{1,16} ...
+    %         error_DG{1,fovid}{1,17} error_DG{1,fovid}{1,18} error_DG{1,fovid}{1,19}
     ];

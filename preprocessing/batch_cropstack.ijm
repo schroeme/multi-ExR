@@ -1,12 +1,12 @@
 // ************* FIJI SCRIPT FOR SHORTENING MULTI-EXR Z-STACKS AFTER REGISTRATION ************* \\
-// Last modified by MES on 12/15/22
+// Last modified by MES on 8/22/23
 // Please read through this script and take note of anything marged "CHANGE HERE". Change accordingly
 // Lots of this script is hard-coded and will need to be modified based on your file saving/naming conventions
 // Some familiarity with Fiji / ijm is best
 // I have tried to compensate for this with good commenting
 
-parent = "E:/Margaret/mExR/2022.10_5xFAD/registered_v2/"; //source directory
-targetdir = "E:/Margaret/mExR/2022.10_5xFAD/cropped_z/"; //target directory
+parent = "E:/Margaret/mExR/2023.11_StgRes_Ctx/registered/round001_noSMI_noGFAP/"; //source directory
+targetdir = "E:/Margaret/mExR/2023.11_StgRes_Ctx/cropped_z/round001_noSMI_noGFAP/"; //target directory
 setBatchMode(true); //true will increase speed
 run("Close All");
 image_folder = parent;
