@@ -121,6 +121,7 @@ params.savechunks=0; %don't save down any objects
 params.lowerlim = 0.02; %lower limit of size filter for object detection
 params.channels = {'ch02','ch03'};
 params.doplot=1;
+params.normalization='none';
 for fovidx = 1:length(fovs)
     fov = fovs{fovidx};
     disp(fov);
@@ -132,7 +133,7 @@ end
 %Format the data for convenient copy/paste into Excel or GraphPad Prism
 %protein order = SynGAP, bassoon
 %want to get - rows corresponding to rounds, columns corresponding to fovs
-protein = 2; %what protein we want to extract data for
+protein = 1; %what protein we want to extract data for
 res = []; %empty for holding results
 
 for ii = 1:length(fovs)
