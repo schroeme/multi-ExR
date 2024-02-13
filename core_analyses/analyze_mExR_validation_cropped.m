@@ -34,6 +34,8 @@ for rridx = 1:nrounds
 
                 if strcmp(params.normalization,'minmax')
                     img = mat2gray(img);
+                elseif strcmp(params.normalization,'none')
+                    img = double(img);
                 end
 
                 imbin = binarize_intensity_threshold(img,params);
