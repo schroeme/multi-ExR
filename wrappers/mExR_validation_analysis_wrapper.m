@@ -118,7 +118,7 @@ params.rounds = {'1';'2';'3';'4';'5';'6';'7'};%if analyzing non-strip rounds
 params.filt='none'; %don't do median filtering
 params.morph_close=0; %don't do morphological closing
 params.savechunks=0; %don't save down any objects
-params.lowerlim = 0.02; %lower limit of size filter for object detection
+params.lowerlim = 0.05; %lower limit of size filter for object detection
 params.channels = {'ch02','ch03'};
 params.doplot=1;
 params.normalization='none';
@@ -133,12 +133,12 @@ end
 %Format the data for convenient copy/paste into Excel or GraphPad Prism
 %protein order = SynGAP, bassoon
 %want to get - rows corresponding to rounds, columns corresponding to fovs
-protein = 1; %what protein we want to extract data for
+protein = 2; %what protein we want to extract data for
 res = []; %empty for holding results
 
 for ii = 1:length(fovs)
     for jj = 1:length(params.rounds)
-        res(jj,ii) = datasyn(ii).punctaint(jj,protein);
+        res(jj,ii) = datasyn(ii).SNR(jj,protein);
     end
 end
 

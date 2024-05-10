@@ -230,10 +230,10 @@ params.thresh_method = 'zscore';
 params.thresh_multiplier = 4;
 params.doplot=0;
 params.sizefilt=1;
-params.lowerlim=50;
+params.lowerlim=100;
 
 %path to cropped volumes
-params.parentfolder = 'E:/Margaret/mExR/2023.05_5xFAD/cropped_abeta_rois/';
+params.parentfolder = 'A:/Margaret/mExR/2023.05_5xFAD/cropped_abeta_rois/';
 
 %ROIs to quantify (in this case, only 5xFAD)
 ROIs = {
@@ -250,7 +250,13 @@ ROIs = {
     'S2ROI4';   
     };
 
-%% Running section
+%define amyloid-beta channels using 'round-channel'
+params.AB_chs = {'01-3';
+    '07-2';
+    '08-3'};
+
+
+%% Running section - amyloid beta in ropped nanoclusters
 for fidx = 1:length(ROIs)
     data(fidx).roiname = ROIs{fidx};
     [data(fidx).data] = analyze_mExR_5xFAD_abeta_cropped(params,ROIs{fidx},params.AB_chs);
@@ -262,38 +268,38 @@ end
 
 topaste = [];
 for ii = 1:length(ROIs)
-    mat = cell2mat(data(ii).data.num_puncta); %change this to pull different variables
+    mat = cell2mat(data(ii).data.punctavol); %change this to pull different variables
     topaste = [topaste; mat];
 end
 
-%% Run quantification of synaptic proteins in cropped abeta nanoclusters
+%% Run quantification of synaptic proteins + PLP1 in cropped abeta nanoclusters
 
 params.syn_channels = {
-   % '01-2';%RIM 
-   %  '02-2';%GluA3
-   %  '02-3';%NR2B
-   %  '03-2';%RIM-BP
-   %  '03-3';%GluA2
-   %  '04-2';%GluA1
-   %  '04-3';%NR1
-   %  '05-3';%Shank3
-   %  '06-2';%Homer1
-   %  '06-3';%CaMKIIa
-   %  '07-3';%Cav2.1
-   %  '08-2';%GluA4
-   %  '09-2'; %PSD95
-   %  '09-3';%Bassoon
-   %  '10-2';%synGAP
-   %  '10-3';%IRsp53
-   %  '11-2';%Stargazin
-    '11-3';%Gephyrin
+   '01-2';%RIM 
+    '02-2';%NR2B
+    '02-3';%GluA3
+    '03-2';%RIM-BP
+    '03-3';%GluA2
+    '04-2';%GluA1
+    '04-3';%NR1
+    '05-3';%Shank3
+    '06-2';%Homer1
+    '06-3';%CaMKIIa
+    '07-3';%Cav2.1
+    '08-2';%GluA4
+    '09-2'; %PSD95
+    '09-3';%Bassoon
+    '10-2';%synGAP
+    '10-3';%IRsp53
+    '11-2';%Stargazin
+    '05-2';%PLP1
 
     };
 
 %change the parameters for this analysis
-params.doplot=1;
+params.doplot=0;
 params.sizefilt=1;
-params.lowerlim=50;
+params.lowerlim=100;
 params.thresh_method = 'zscore';
 params.thresh_multiplier = 4;
 
@@ -302,32 +308,7 @@ for fidx = 1:length(ROIs)
     [data(fidx).data] = analyze_mExR_5xFAD_abeta_cropped(params,ROIs{fidx},params.syn_channels);
 end
 
-%% Compile data - synaptic proteins in cropped nanoclusters
-%This section puts the data in a convenient format for copy/paste into
-%Excel or Prism for graphing. May require hard-coding to your preferences
-topaste = [];
-for ii = 1:length(ROIs)
-    mat = cell2mat(data(ii).data.punctavol); %change this to pull different variables of interest
-    topaste = [topaste; mat];
-end
-
-%% Run quantification of PLP1 in cropped abeta nanoclusters
-
-%change the parameters for this analysis
-params.doplot=1;
-params.sizefilt=1;
-params.lowerlim=50;
-params.thresh_method = 'zscore';
-params.thresh_multiplier = 4;
-params.plp_channels = {'05-2'};
-
-for fidx = 1:length(ROIs)
-    data(fidx).roiname = ROIs{fidx};
-    [data(fidx).data] = analyze_mExR_5xFAD_abeta_cropped(params,ROIs{fidx},params.plp_channels);
-end
-
-%% Compile data - PLP1 in cropped nanoclusters
-
+%% Compile data - synaptic proteins + PLP1 in cropped nanoclusters
 %This section puts the data in a convenient format for copy/paste into
 %Excel or Prism for graphing. May require hard-coding to your preferences
 topaste = [];
@@ -341,7 +322,7 @@ end
 params.overlap_chs = {
     '07-2';%D54D2
     '03-3'};%GluA2
-params.sizefilt=0;
+params.sizefilt=1;
 params.lowerlim=20;
 params.thresh_method = 'zscore';
 params.thresh_multiplier = 4;
@@ -361,7 +342,7 @@ end
 topaste = [vol1_combined vol2_combined overlaps_combined];
 
 %% Run quantification of overlap of GluA4/D54D2
-%Note - the scrip
+
 params.overlap_chs = {
     '07-2';%D54D2
     '08-2'};%GluA4
@@ -380,12 +361,7 @@ end
 topaste = [vol1_combined vol2_combined overlaps_combined];
 
 %% Run quantification of overlap of GluA1/D54D2
-%Note - the scrip
-params.sizefilt=1;
-params.lowerlim=50;
-params.thresh_method = 'zscore';
-params.thresh_multiplier = 4;
-params.doplot = 1;
+
 params.overlap_chs = {
     '07-2';%D54D2
     '04-2'};%GluA1
@@ -407,7 +383,7 @@ topaste = [vol1_combined vol2_combined overlaps_combined];
 
 params.overlap_chs = {
     '07-2';%D54D2
-    '02-2'};%GluA3
+    '02-3'};%GluA3, originally had this mixed up
 
 overlaps_combined = [];
 vol1_combined = [];
