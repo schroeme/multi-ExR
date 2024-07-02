@@ -42,9 +42,11 @@ for ss = 1:ncrops %loop through all cropped ROIs
     img2_bin = binarize_intensity_threshold(img2,params);
 
     %filter the images if needed
-    if strcmp(params.filt,'med')
-        img1_bin = medfilt3(img1_bin,params.filt_size);
-        img2_bin = medfilt3(img2_bin,params.filt_size);
+    if params.dofilt
+        if strcmp(params.filt,'med')
+            img1_bin = medfilt3(img1_bin,params.filt_size);
+            img2_bin = medfilt3(img2_bin,params.filt_size);
+        end
     end
 
     %apply a size filter to get rid of bright, high-frequency noise
