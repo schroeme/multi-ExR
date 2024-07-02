@@ -327,6 +327,7 @@ params.lowerlim=20;
 params.thresh_method = 'zscore';
 params.thresh_multiplier = 4;
 params.doplot = 1;
+params.dofilt=1;
 
 overlaps_combined = [];
 vol1_combined = [];
@@ -350,6 +351,7 @@ params.overlap_chs = {
 overlaps_combined = [];
 vol1_combined = [];
 vol2_combined = [];
+params.dofilt=1;
 
 for fidx = 1:length(ROIs)
     [overlaps_fov,vol1_fov,vol2_fov] = analyze_AB_synapse_coloc(params,ROIs{fidx},params.overlap_chs);
@@ -369,6 +371,7 @@ params.overlap_chs = {
 overlaps_combined = [];
 vol1_combined = [];
 vol2_combined = [];
+params.dofilt=1;
 
 for fidx = 1:length(ROIs)
     [overlaps_fov,vol1_fov,vol2_fov] = analyze_AB_synapse_coloc(params,ROIs{fidx},params.overlap_chs);
@@ -388,6 +391,7 @@ params.overlap_chs = {
 overlaps_combined = [];
 vol1_combined = [];
 vol2_combined = [];
+params.dofilt=1;
 
 for fidx = 1:length(ROIs)
     [overlaps_fov,vol1_fov,vol2_fov] = analyze_AB_synapse_coloc(params,ROIs{fidx},params.overlap_chs);
