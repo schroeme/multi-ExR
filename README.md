@@ -1,6 +1,6 @@
 # multi-EXR
 
-Code base accompanying Kang*, Schroeder* et al., 2023.
+Code base accompanying Kang*, Schroeder* et al., 2024.
 
 ## Broad overview of multi-ExR analysis pipeline
 1. Image pre-processing (Fiji)
