@@ -1,6 +1,6 @@
 %%  WRAPPER for analyzing Thy1-YFP vs. PV synapses %% 
 
-% Last modified by Margaret Schroeder on 6/8/24
+% Last modified by Margaret Schroeder on 7/4/24
 
 % Image processing up to this point:
 % - background subtraction in Fiji and
@@ -18,7 +18,9 @@ clear all
 %the directory containing all of your image files, named according to the
 %following convention: [FIELD OF VIEW NAME]_[ROUND]_[CHANNEL].tif, as
 %output from the ExSeqProcessing registration pipeline
-params.parentfolder = 'A:/Margaret/mExR/2024.04_Thy1-YFP_PV/cropped_synaptic_rois/PN/';
+%params.parentfolder = 'A:/Margaret/mExR/2024.04_Thy1-YFP_PV/cropped_synaptic_rois/PN/';
+
+params.parentfolder = 'A:/Margaret/mExR/2024.04_Thy1-YFP_PV/registered/';
 
 %names of fields of view within the parent folder
 ROIs = {
@@ -94,18 +96,31 @@ params.syn_channels = {
     };
 
 
+%% Determine thresholds for quantification of synaptic proteins in ROIs based on whole field of view
+params.thresh_method = 'absolute';
+params.thresh_multiplier = 3;
+threshmat = [];
+for fidx = 1:length(ROIs)
+    thresholds = determine_intensity_threshold(params,ROIs{fidx},params.syn_channels);
+    threshmat = [threshmat; thresholds];
+end
+
+%Copied and pasted the thresholds into an Excel file and saved into the
+%Dropbox folder.
+
 %% Run quantification of synaptic proteins in synaptic ROIs - PN (pyramidal neuron)
+
+params.parentfolder = 'A:/Margaret/mExR/2024.04_Thy1-YFP_PV/cropped_synaptic_rois/PN/';
 
 %change the parameters for this analysis
 params.doplot=0;
 params.sizefilt=10;
 params.lowerlim=0;
-params.thresh_method = 'zscore';
-params.thresh_multiplier = 3;
-%params.filt=0;
+params.thresh_method = 'absolute';
 
 for fidx = 1:length(ROIs)
     data(fidx).roiname = ROIs{fidx};
+    params.thresholds=threshmat(fidx,:); %set thresholds for this field of view
     [data(fidx).data] = analyze_synaptic_puncta_cropped(params,ROIs{fidx},params.syn_channels);
 end
 
@@ -114,7 +129,7 @@ end
 %Excel or Prism for graphing. May require hard-coding to your preferences
 topaste = [];
 for ii = 1:length(ROIs)
-    mat = cell2mat(data(ii).data.AR); %change this to pull different variables of interest
+    mat = cell2mat(data(ii).data.num_puncta); %change this to pull different variables of interest
     topaste = [topaste; mat];
 end
 
@@ -127,12 +142,13 @@ params.parentfolder = 'A:/Margaret/mExR/2024.04_Thy1-YFP_PV/cropped_synaptic_roi
 params.doplot=0;
 params.sizefilt=10;
 params.lowerlim=0;
-params.thresh_method = 'zscore';
-params.thresh_multiplier = 3;
+params.thresh_method = 'absolute';
+%params.thresh_multiplier = 3;
 %params.filt=0;
 
 for fidx = 1:length(ROIs)
     data(fidx).roiname = ROIs{fidx};
+    params.thresholds=threshmat(fidx,:); %set thresholds for this field of view
     [data(fidx).data] = analyze_synaptic_puncta_cropped(params,ROIs{fidx},params.syn_channels);
 end
 
@@ -141,7 +157,7 @@ end
 %Excel or Prism for graphing. May require hard-coding to your preferences
 topaste = [];
 for ii = 1:length(ROIs)
-    mat = cell2mat(data(ii).data.meanint); %change this to pull different variables of interest
+    mat = cell2mat(data(ii).data.AR); %change this to pull different variables of interest
     %mat = data(ii).data.roi_filename;
     topaste = [topaste; mat];
     %topaste = [topaste; mat{1,1}];
